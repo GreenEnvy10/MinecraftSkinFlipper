@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Skin Flipper</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        canvas { border: 1px solid black; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Minecraft Skin Flipper</h1>
+    <input type="file" id="skinInput" accept="image/png">
+    <br>
+    <canvas id="skinCanvas"></canvas>
+    <br>
+    <button onclick="downloadFlippedSkin()">Download Flipped Skin</button>
+
+    <script>
+        const fileInput = document.getElementById('skinInput');
+        const canvas = document.getElementById('skinCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.save();
+                        ctx.translate(0, img.height);
+                        ctx.scale(1, -1);
+                        ctx.drawImage(img, 0, 0);
+                        ctx.restore();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function downloadFlippedSkin() {
+            const link = document.createElement('a');
+            link.download = 'flipped_skin.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>
