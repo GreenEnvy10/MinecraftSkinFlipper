@@ -31,11 +31,34 @@
                     img.onload = function() {
                         canvas.width = img.width;
                         canvas.height = img.height;
+                        
+                        // Rotate the entire skin 180 degrees
                         ctx.save();
-                        ctx.translate(0, img.height);
-                        ctx.scale(1, -1);
+                        ctx.translate(img.width, img.height);
+                        ctx.rotate(Math.PI);
                         ctx.drawImage(img, 0, 0);
                         ctx.restore();
+                        
+                        // Fix misaligned parts by rearranging key areas
+                        const tempCanvas = document.createElement('canvas');
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCanvas.width = img.width;
+                        tempCanvas.height = img.height;
+                        tempCtx.drawImage(canvas, 0, 0);
+                        
+                        // Define regions to swap back correctly
+                        const sections = [
+                            { sx: 8, sy: 8, sw: 8, sh: 8, dx: 8, dy: 8 }, // Face
+                            { sx: 4, sy: 20, sw: 4, sh: 12, dx: 4, dy: 20 }, // Right Arm
+                            { sx: 12, sy: 20, sw: 4, sh: 12, dx: 12, dy: 20 }, // Left Arm
+                            { sx: 4, sy: 4, sw: 4, sh: 12, dx: 4, dy: 4 }, // Right Leg
+                            { sx: 12, sy: 4, sw: 4, sh: 12, dx: 12, dy: 4 } // Left Leg
+                        ];
+                        
+                        sections.forEach(({ sx, sy, sw, sh, dx, dy }) => {
+                            const imageData = tempCtx.getImageData(sx, sy, sw, sh);
+                            ctx.putImageData(imageData, dx, dy);
+                        });
                     };
                     img.src = e.target.result;
                 };
